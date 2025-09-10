@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: Cloudflare-Faker
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    whitelabel:
+      enabled: false

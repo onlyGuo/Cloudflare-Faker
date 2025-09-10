@@ -1,0 +1,44 @@
+[
+  {
+    "fileName": "Thread.java",
+    "lineNumber": 2166,
+    "className": "java.lang.Thread",
+    "methodName": "getStackTrace"
+  },
+  {
+    "fileName": "WebSocketMessageSender.java",
+    "lineNumber": 22,
+    "className": "com.guoshengkai.cloudflarefaker.websocket.WebSocketMessageSender",
+    "methodName": "sendMessage"
+  },
+  {
+    "fileName": "WebSocketMessageSender.java",
+    "lineNumber": 33,
+    "className": "com.guoshengkai.cloudflarefaker.websocket.WebSocketMessageSender",
+    "methodName": "sendMessage"
+  },
+  {
+    "fileName": "ApiController.java",
+    "lineNumber": 40,
+    "className": "com.guoshengkai.cloudflarefaker.controller.ApiController",
+    "methodName": "lambda$executeFetchStream$2"
+  },
+  {
+    "fileName": "RegisteredSessionManager.java",
+    "lineNumber": 99,
+    "className": "com.guoshengkai.cloudflarefaker.websocket.center.RegisteredSessionManager",
+    "methodName": "getClientAndExecute"
+  },
+  {
+    "fileName": "ApiController.java",
+    "lineNumber": 38,
+    "className": "com.guoshengkai.cloudflarefaker.controller.ApiController",
+    "methodName": "lambda$executeFetchStream$1"
+  },
+  {
+    "fileName": "VirtualThread.java",
+    "lineNumber": 466,
+    "className": "java.lang.VirtualThread",
+    "methodName": "run"
+  }
+]

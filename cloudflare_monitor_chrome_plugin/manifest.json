@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Cloudflare Monitor",
+  "version": "1.0",
+  "description": "A Chrome extension to execute scripts on Cloudflare-proxied pages via WebSocket commands",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["console.html", "console.css", "console.js"],
+      "matches": ["*://*/*"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Cloudflare Monitor"
+  }
+}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Cloudflare Monitor Console</title>
+  <link rel="stylesheet" href="console.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>🛡️ Cloudflare Monitor Console</h1>
+      <div class="connection-status" id="connectionStatus">
+        <span class="status-indicator" id="statusIndicator"></span>
+        <span id="statusText">Connecting...</span>
+      </div>
+    </header>
+
+    <div class="dashboard">
+      <div class="stats-section">
+        <h2>📊 Statistics</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Client ID</div>
+            <div class="stat-value" id="clientId">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Pages</div>
+            <div class="stat-value" id="activePages">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Busy Pages</div>
+            <div class="stat-value" id="busyPages">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Tasks Executed</div>
+            <div class="stat-value" id="tasksExecuted">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pages-section">
+        <h2>📄 Page Status</h2>
+        <div class="pages-list" id="pagesList">
+          <div class="no-pages">No pages currently monitored</div>
+        </div>
+      </div>
+
+      <div class="logs-section">
+        <h2>📝 Logs</h2>
+        <div class="logs-controls">
+          <button id="clearLogs">Clear Logs</button>
+          <button id="refreshLogs">Refresh</button>
+          <select id="logLevel">
+            <option value="all">All Levels</option>
+            <option value="error">Error</option>
+            <option value="warn">Warning</option>
+            <option value="info">Info</option>
+          </select>
+        </div>
+        <div class="logs-container" id="logsContainer">
+          <div class="loading">Loading logs...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="console.js"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LM Arena API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            height: 200px;
+            overflow-y: scroll;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #f9f9f9;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LM Arena API Server</h1>
+
+        <div class="section">
+            <h3>HTTP API Test</h3>
+            <button class="button" onclick="testHttpApi()">Test API Endpoint</button>
+            <div id="httpResult"></div>
+        </div>
+
+        <div class="section">
+            <h3>WebSocket Test</h3>
+            <button class="button" onclick="connectWebSocket()">Connect WebSocket</button>
+            <button class="button" onclick="disconnectWebSocket()">Disconnect</button>
+            <br>
+            <input type="text" id="messageInput" placeholder="Enter message">
+            <button class="button" onclick="sendMessage()">Send Message</button>
+            <div id="messages"></div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+
+        function testHttpApi() {
+            fetch('/api/test')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('httpResult').innerHTML =
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                })
+                .catch(error => {
+                    document.getElementById('httpResult').innerHTML =
+                        '<span style="color: red;">Error: ' + error.message + '</span>';
+                });
+        }
+
+        function connectWebSocket() {
+            if (ws) {
+                ws.close();
+            }
+
+            ws = new WebSocket('ws://localhost:8080/ws');
+
+            ws.onopen = function() {
+                addMessage('Connected to WebSocket server');
+            };
+
+            ws.onmessage = function(event) {
+                addMessage('Received: ' + event.data);
+            };
+
+            ws.onclose = function() {
+                addMessage('WebSocket connection closed');
+            };
+
+            ws.onerror = function(error) {
+                addMessage('WebSocket error: ' + error);
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function sendMessage() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const message = document.getElementById('messageInput').value;
+                ws.send('test:' + message);
+                addMessage('Sent: test:' + message);
+                document.getElementById('messageInput').value = '';
+            } else {
+                addMessage('WebSocket is not connected');
+            }
+        }
+
+        function addMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Allow sending message with Enter key
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

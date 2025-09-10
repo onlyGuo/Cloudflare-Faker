@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare-Faker Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card.request-tools {
+            margin-top: 20px;
+        }
+
+        .api-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            height: 80vh;
+        }
+
+        .api-sidebar {
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .api-content {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .api-menu-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s, border-left 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .api-menu-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .api-menu-item.active {
+            background-color: #e3f2fd;
+            border-left-color: #667eea;
+        }
+
+        .api-menu-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .api-menu-description {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .api-method {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            margin-right: 8px;
+        }
+
+        .method-post { background-color: #48bb78; }
+        .method-get { background-color: #4299e1; }
+        .method-put { background-color: #ed8936; }
+        .method-delete { background-color: #f56565; }
+
+        .debug-panel {
+            display: none;
+        }
+
+        .debug-panel.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            height: 80px;
+            resize: vertical;
+        }
+
+        .api-doc-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .api-doc-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .api-doc-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .param-preview {
+            background-color: #2d3748;
+            color: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .execute-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 10px;
+            transition: opacity 0.2s;
+        }
+
+        .execute-button:hover {
+            opacity: 0.9;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            min-height: 100px;
+            max-height: 400px;
+            overflow-y: auto;
+            border-left: 4px solid #48bb78;
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background-color: #48bb78;
+        }
+
+        .status-offline {
+            background-color: #f56565;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .connections-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .connection-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #48bb78;
+        }
+
+        .connection-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .message-count {
+            background-color: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .model-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .model-name {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .model-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            background-color: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: opacity 0.2s;
+        }
+
+        .refresh-btn:hover {
+            opacity: 0.9;
+        }
+
+        .models-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Cloudflare-Faker Dashboard</h1>
+        <p>Real-time monitoring and management</p>
+    </div>
+
+    <div class="container">
+        <div class="dashboard">
+            <!-- Server Status -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="status-indicator status-online"></span>
+                    Server Status
+                </div>
+                <div class="metric">
+                    <span>Server Status</span>
+                    <span class="metric-value" id="serverStatus">Online</span>
+                </div>
+                <div class="metric">
+                    <span>Uptime</span>
+                    <span class="metric-value" id="uptime">--</span>
+                </div>
+                <div class="metric">
+                    <span>Port</span>
+                    <span class="metric-value">8080</span>
+                </div>
+                <div class="metric">
+                    <span>Last Updated</span>
+                    <span class="metric-value" id="lastUpdated">--</span>
+                </div>
+                <div class="metric">
+                    <span>Memory Usage</span>
+                    <span class="metric-value" id="memoryUsage">--</span>
+                </div>
+                <div class="metric">
+                    <span>Version</span>
+                    <span class="metric-value" id="serverVersion">--</span>
+                </div>
+                <button class="refresh-btn" onclick="refreshServerStatus()">Refresh Status</button>
+            </div>
+
+            <!-- WebSocket Connections -->
+            <div class="card">
+                <div class="card-header">
+                    Chrome Agent Connections
+                </div>
+                <div class="metric">
+                    <span>Active Connections</span>
+                    <span class="metric-value" id="connectionCount">0</span>
+                </div>
+                <div class="metric">
+                    <span>Total Messages</span>
+                    <span class="metric-value" id="totalMessages">0</span>
+                </div>
+                <button class="refresh-btn" onclick="refreshConnections()">Refresh Connections</button>
+                <div class="connections-list" id="connectionsList">
+                    <!-- Connection items will be populated here -->
+                </div>
+            </div>
+
+<!--            &lt;!&ndash; Model List &ndash;&gt;-->
+<!--            <div class="card">-->
+<!--                <div class="card-header">-->
+<!--                    Available Models-->
+<!--                </div>-->
+<!--                <div class="metric">-->
+<!--                    <span>Total Models</span>-->
+<!--                    <span class="metric-value" id="modelCount">&#45;&#45;</span>-->
+<!--                </div>-->
+<!--                <button class="refresh-btn" onclick="refreshModels()">Refresh Models</button>-->
+<!--                <div class="models-list" id="modelsList">-->
+<!--                    &lt;!&ndash; Model items will be populated here &ndash;&gt;-->
+<!--                </div>-->
+<!--            </div>-->
+
+            <!-- API Testing -->
+            <div class="card">
+                <div class="card-header">
+                    API Testing
+                </div>
+                <button class="refresh-btn" onclick="testHealthEndpoint()">Test Health Endpoint</button>
+                <button class="refresh-btn" onclick="testWebSocketConnection()">Test WebSocket</button>
+                <div id="testResults" style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; min-height: 50px;">
+                    Test results will appear here...
+                </div>
+            </div>
+        </div>
+
+        <!-- API Debug Tools -->
+        <div class="api-container">
+            <!-- Left API Menu -->
+            <div class="api-sidebar">
+                <div class="api-menu-item active" onclick="switchAPI('remote-fetch')">
+                    <div class="api-menu-title">
+                        <span class="api-method method-post">POST</span>Remote Fetch
+                    </div>
+                    <div class="api-menu-description">Execute remote HTTP requests</div>
+                </div>
+
+                <div class="api-menu-item" onclick="switchAPI('remote-fetch-stream')">
+                    <div class="api-menu-title">
+                        <span class="api-method method-post">POST</span>Remote Fetch Stream
+                    </div>
+                    <div class="api-menu-description">Execute remote HTTP requests (streaming response)</div>
+                </div>
+
+                <div class="api-menu-item" onclick="switchAPI('remote-script')">
+                    <div class="api-menu-title">
+                        <span class="api-method method-post">POST</span>Remote Script
+                    </div>
+                    <div class="api-menu-description">Execute remote JavaScript scripts</div>
+                </div>
+
+                <div class="api-menu-item" onclick="switchAPI('remote-html')">
+                    <div class="api-menu-title">
+                        <span class="api-method method-post">POST</span>Remote HTML
+                    </div>
+                    <div class="api-menu-description">Load remote HTML pages</div>
+                </div>
+            </div>
+
+            <!-- 右侧调试面板 -->
+            <div class="api-content">
+                <!-- Remote Fetch 调试面板 -->
+                <div id="remote-fetch-panel" class="debug-panel active">
+                    <div class="api-doc-section">
+                        <div class="api-doc-title">POST /api/remote-fetch</div>
+                        <div class="api-doc-description">Send an HTTP request to the specified page and return the result.</div>
+
+                        <pre class="param-preview" id="remote-fetch-preview">
+{
+  "pageUrl": "https://example.com",
+  "fetchUrl": "https://api.example.com/data",
+  "method": "GET",
+  "body": null,
+  "stream": false
+}
+                        </pre>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Page URL *</label>
+                        <input type="text" class="form-input" id="fetch-pageUrl" placeholder="https://example.com" oninput="updatePreview('remote-fetch')">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Fetch URL *</label>
+                        <input type="text" class="form-input" id="fetch-fetchUrl" placeholder="https://api.example.com/data" oninput="updatePreview('remote-fetch')">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">HTTP Method</label>
+                        <select class="form-input" id="fetch-method" onchange="updatePreview('remote-fetch')">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Request body (JSON)</label>
+                        <textarea class="form-textarea" id="fetch-body" placeholder='{"key": "value"}' oninput="updatePreview('remote-fetch')"></textarea>
+                    </div>
+
+                    <button class="execute-button" onclick="executeAPI('remote-fetch')">Execute request</button>
+
+                    <div class="result-container" id="remote-fetch-result">
+                        The request result will be displayed here...
+                    </div>
+                </div>
+
+                <!-- Remote Fetch Stream 调试面板 -->
+                <div id="remote-fetch-stream-panel" class="debug-panel">
+                    <div class="api-doc-section">
+                        <div class="api-doc-title">POST /api/remote-fetch-stream</div>
+                        <div class="api-doc-description">Send an HTTP request to the specified page and return the result as a stream.</div>
+
+                        <pre class="param-preview" id="remote-fetch-stream-preview">
+{
+  "pageUrl": "https://example.com",
+  "fetchUrl": "https://api.example.com/stream",
+  "method": "GET",
+  "body": null,
+  "stream": true
+}
+                        </pre>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Page URL *</label>
+                        <input type="text" class="form-input" id="stream-pageUrl" placeholder="https://example.com" oninput="updatePreview('remote-fetch-stream')">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Request URL *</label>
+                        <input type="text" class="form-input" id="stream-fetchUrl" placeholder="https://api.example.com/stream" oninput="updatePreview('remote-fetch-stream')">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">HTTP Method</label>
+                        <select class="form-input" id="stream-method" onchange="updatePreview('remote-fetch-stream')">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Request body (JSON)</label>
+                        <textarea class="form-textarea" id="stream-body" placeholder='{"key": "value"}' oninput="updatePreview('remote-fetch-stream')"></textarea>
+                    </div>
+
+                    <button class="execute-button" onclick="executeAPI('remote-fetch-stream')">Execute request</button>
+
+                    <div class="result-container" id="remote-fetch-stream-result">
+                        The request result will be displayed here...
+                    </div>
+                </div>
+
+                <!-- Remote Script 调试面板 -->
+                <div id="remote-script-panel" class="debug-panel">
+                    <div class="api-doc-section">
+                        <div class="api-doc-title">POST /api/remote-script</div>
+                        <div class="api-doc-description">Execute JavaScript code on the specified page.</div>
+
+                        <pre class="param-preview" id="remote-script-preview">
+{
+  "pageUrl": "https://example.com",
+  "script": "document.title",
+  "type": "EXECUTE_SCRIPT_TASK"
+}
+                        </pre>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Page URL *</label>
+                        <input type="text" class="form-input" id="script-pageUrl" placeholder="https://example.com" oninput="updatePreview('remote-script')">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">JavaScript *</label>
+                        <textarea class="form-textarea" id="script-code" placeholder="document.title" oninput="updatePreview('remote-script')" style="height: 120px;"></textarea>
+                    </div>
+
+                    <button class="execute-button" onclick="executeAPI('remote-script')">Execute</button>
+
+                    <div class="result-container" id="remote-script-result">
+                        The script execution result will be displayed here...
+                    </div>
+                </div>
+
+                <!-- Remote HTML 调试面板 -->
+                <div id="remote-html-panel" class="debug-panel">
+                    <div class="api-doc-section">
+                        <div class="api-doc-title">POST /api/remote-html</div>
+                        <div class="api-doc-description">Retrieve the HTML content of the specified page</div>
+
+                        <pre class="param-preview" id="remote-html-preview">
+{
+  "pageUrl": "https://example.com"
+}
+                        </pre>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Page URL *</label>
+                        <input type="text" class="form-input" id="html-pageUrl" placeholder="https://example.com" oninput="updatePreview('remote-html')">
+                    </div>
+
+
+                    <button class="execute-button" onclick="executeAPI('remote-html')">Execute</button>
+
+                    <div class="result-container" id="remote-html-result">
+                        The HTML content will be displayed here...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let connectionData = [];
+        let modelData = [
+            { name: "GPT-4", id: "gpt-4-0125-preview", status: "active" },
+            { name: "Claude-3 Opus", id: "claude-3-opus-20240229", status: "active" },
+            { name: "Claude-3 Sonnet", id: "claude-3-sonnet-20240229", status: "active" },
+            { name: "Gemini Pro", id: "gemini-pro-1.5", status: "active" },
+            { name: "LLaMA 2 70B", id: "llama-2-70b-chat", status: "maintenance" },
+            { name: "Mistral Large", id: "mistral-large-latest", status: "active" },
+            { name: "PaLM 2", id: "palm-2-chat-bison", status: "deprecated" }
+        ];
+
+        function updateLastUpdated() {
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+        }
+
+        function refreshServerStatus() {
+            fetch('/console/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('serverStatus').textContent = data.status === 'online' ? 'Online' : 'Offline';
+                    document.getElementById('uptime').textContent = data.uptimeFormatted;
+                    document.getElementById('serverVersion').textContent = data.version;
+                    updateLastUpdated();
+
+                    // Update memory usage
+                    if (data.memory) {
+                        const memoryUsedMB = Math.round(data.memory.used / (1024 * 1024));
+                        const memoryTotalMB = Math.round(data.memory.total / (1024 * 1024));
+                        const memoryPercentage = Math.round((data.memory.used / data.memory.total) * 100);
+                        document.getElementById('memoryUsage').textContent =
+                            `${memoryUsedMB}/${memoryTotalMB}MB (${memoryPercentage}%)`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('serverStatus').textContent = 'Error';
+                    console.error('Failed to get server status:', error);
+                });
+        }
+
+        function refreshConnections() {
+            fetch('/console/connections')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('connectionCount').textContent = data.count;
+                    document.getElementById('totalMessages').textContent = data.totalMessages;
+
+                    const connectionsList = document.getElementById('connectionsList');
+                    connectionsList.innerHTML = '';
+
+                    data.connections.forEach(conn => {
+                        const div = document.createElement('div');
+                        div.className = 'connection-item';
+                        const connectedTime = new Date(conn.connectedAt).toLocaleTimeString();
+                        const lastPingTime = new Date(conn.lastPing).toLocaleTimeString();
+                        div.innerHTML = `
+                            <div>
+                                <div class="connection-id">ID: ${conn.id}</div>
+                                ${conn.clientId ? '<div style="font-size: 12px; color: #4a90e2; font-weight: bold;">Client: ' + conn.clientId + '</div>' : '<div style="font-size: 12px; color: #999;">Not registered</div>'}
+                                <div style="font-size: 12px; color: #666;">Connected: ${connectedTime}</div>
+                                <div style="font-size: 12px; color: #666;">Last Ping: ${lastPingTime}</div>
+                                <div style="font-size: 12px; color: ${conn.active ? '#48bb78' : '#f56565'};">
+                                    Status: ${conn.active ? 'Active' : 'Inactive'}
+                                </div>
+                            </div>
+                            <div class="message-count">${conn.messages} msgs</div>
+                        `;
+                        connectionsList.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to fetch connections:', error);
+                    // Fallback to mock data
+                    connectionData = [
+                        { id: 'conn-001', messages: 15, connected: new Date(Date.now() - 300000).toLocaleTimeString() },
+                        { id: 'conn-002', messages: 8, connected: new Date(Date.now() - 150000).toLocaleTimeString() },
+                        { id: 'conn-003', messages: 23, connected: new Date(Date.now() - 600000).toLocaleTimeString() }
+                    ];
+
+                    document.getElementById('connectionCount').textContent = connectionData.length;
+
+                    const totalMessages = connectionData.reduce((sum, conn) => sum + conn.messages, 0);
+                    document.getElementById('totalMessages').textContent = totalMessages.toString();
+
+                    const connectionsList = document.getElementById('connectionsList');
+                    connectionsList.innerHTML = '';
+
+                    connectionData.forEach(conn => {
+                        const div = document.createElement('div');
+                        div.className = 'connection-item';
+                        div.innerHTML = `
+                            <div>
+                                <div class="connection-id">ID: ${conn.id}</div>
+                                <div style="font-size: 12px; color: #666;">Connected: ${conn.connected}</div>
+                            </div>
+                            <div class="message-count">${conn.messages} msgs</div>
+                        `;
+                        connectionsList.appendChild(div);
+                    });
+                });
+        }
+
+        function refreshModels() {
+            fetch('/console/models')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('modelCount').textContent = data.count.toString();
+
+                    const modelsList = document.getElementById('modelsList');
+                    modelsList.innerHTML = '';
+
+                    data.models.forEach(model => {
+                        const div = document.createElement('div');
+                        div.className = 'model-item';
+
+                        let statusColor = '#48bb78'; // green for active
+                        if (model.status === 'maintenance') statusColor = '#ed8936'; // orange
+                        if (model.status === 'deprecated') statusColor = '#f56565'; // red
+
+                        div.innerHTML = `
+                            <div>
+                                <div class="model-name">${model.name}</div>
+                                <div style="font-size: 12px; color: ${statusColor}; margin-top: 4px;">
+                                    Status: ${model.status}
+                                </div>
+                                <div style="font-size: 11px; color: #888; margin-top: 2px;">
+                                    Provider: ${model.provider}
+                                </div>
+                            </div>
+                            <div class="model-id">${model.id}</div>
+                        `;
+                        modelsList.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to fetch models:', error);
+                    // Fallback to mock data
+                    document.getElementById('modelCount').textContent = modelData.length.toString();
+
+                    const modelsList = document.getElementById('modelsList');
+                    modelsList.innerHTML = '';
+
+                    modelData.forEach(model => {
+                        const div = document.createElement('div');
+                        div.className = 'model-item';
+
+                        let statusColor = '#48bb78'; // green for active
+                        if (model.status === 'maintenance') statusColor = '#ed8936'; // orange
+                        if (model.status === 'deprecated') statusColor = '#f56565'; // red
+
+                        div.innerHTML = `
+                            <div>
+                                <div class="model-name">${model.name}</div>
+                                <div style="font-size: 12px; color: ${statusColor}; margin-top: 4px;">
+                                    Status: ${model.status}
+                                </div>
+                            </div>
+                            <div class="model-id">${model.id}</div>
+                        `;
+                        modelsList.appendChild(div);
+                    });
+                });
+        }
+
+        function testHealthEndpoint() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = 'Testing health endpoint...';
+
+            fetch('/console/health')
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = `
+                        <strong>Health Endpoint Test:</strong> ✅ Success<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = `
+                        <strong>Health Endpoint Test:</strong> ❌ Failed<br>
+                        <span style="color: red;">Error: ${error.message}</span>
+                    `;
+                });
+        }
+
+        function testWebSocketConnection() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = 'Testing WebSocket connection...';
+
+            if (ws) {
+                ws.close();
+            }
+
+            ws = new WebSocket('ws://localhost:8080/ws');
+
+            ws.onopen = function() {
+                resultsDiv.innerHTML = `
+                    <strong>WebSocket Test:</strong> ✅ Connected<br>
+                    Registering client...
+                `;
+
+                const clientId = 'dashboard-test-' + Date.now();
+                const registerMessage = {
+                    type: "register",
+                    clientId: clientId,
+                    timestamp: Date.now()
+                };
+                ws.send(JSON.stringify(registerMessage));
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const response = JSON.parse(event.data);
+                    resultsDiv.innerHTML += `<br>Received: ${response.type}`;
+
+                    if (response.type === 'register_ack') {
+                        resultsDiv.innerHTML += `<br>✅ Registration successful!`;
+                        resultsDiv.innerHTML += `<br>Sending ping...`;
+
+                        const pingMessage = {
+                            type: "ping",
+                            timestamp: Date.now()
+                        };
+                        ws.send(JSON.stringify(pingMessage));
+                    } else if (response.type === 'pong') {
+                        resultsDiv.innerHTML += `<br>✅ Ping successful!`;
+                        setTimeout(() => {
+                            ws.close();
+                        }, 1000);
+                    }
+                } catch (e) {
+                    resultsDiv.innerHTML += `<br>Raw message: ${event.data}`;
+                }
+            };
+
+            ws.onclose = function() {
+                resultsDiv.innerHTML += '<br>WebSocket connection closed';
+            };
+
+            ws.onerror = function(error) {
+                resultsDiv.innerHTML = `
+                    <strong>WebSocket Test:</strong> ❌ Failed<br>
+                    <span style="color: red;">Error connecting to WebSocket</span>
+                `;
+            };
+        }
+
+        // Auto-refresh functions
+        function startAutoRefresh() {
+            setInterval(() => {
+                refreshServerStatus();
+                refreshConnections();
+                updateLastUpdated();
+            }, 5000);
+        }
+
+        // API调试工具新功能
+        function switchAPI(apiType) {
+            // 更新菜单选中状态
+            document.querySelectorAll('.api-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.api-menu-item').classList.add('active');
+
+            // 隐藏所有面板
+            document.querySelectorAll('.debug-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // 显示对应面板
+            const panel = document.getElementById(apiType + '-panel');
+            if (panel) {
+                panel.classList.add('active');
+            }
+        }
+
+        function updatePreview(apiType) {
+            let previewData = {};
+
+            switch(apiType) {
+                case 'remote-fetch':
+                    previewData = {
+                        pageUrl: document.getElementById('fetch-pageUrl').value || "https://example.com",
+                        fetchUrl: document.getElementById('fetch-fetchUrl').value || "https://api.example.com/data",
+                        method: document.getElementById('fetch-method').value || "GET",
+                        body: parseBodyInput('fetch-body'),
+                        stream: false
+                    };
+                    break;
+
+                case 'remote-fetch-stream':
+                    previewData = {
+                        pageUrl: document.getElementById('stream-pageUrl').value || "https://example.com",
+                        fetchUrl: document.getElementById('stream-fetchUrl').value || "https://api.example.com/stream",
+                        method: document.getElementById('stream-method').value || "GET",
+                        body: parseBodyInput('stream-body'),
+                        stream: true
+                    };
+                    break;
+
+                case 'remote-script':
+                    previewData = {
+                        pageUrl: document.getElementById('script-pageUrl').value || "https://example.com",
+                        script: document.getElementById('script-code').value || "document.title",
+                        type: "EXECUTE_SCRIPT_TASK"
+                    };
+                    break;
+
+                case 'remote-html':
+                    previewData = {
+                        pageUrl: document.getElementById('html-pageUrl').value || "https://example.com",
+                        script: document.getElementById('html-content').value || "<div>Hello World</div>",
+                        type: "LOAD_HTML"
+                    };
+                    break;
+            }
+
+            const previewElement = document.getElementById(apiType + '-preview');
+            if (previewElement) {
+                previewElement.textContent = JSON.stringify(previewData, null, 2);
+            }
+        }
+
+        function parseBodyInput(elementId) {
+            const bodyText = document.getElementById(elementId)?.value?.trim();
+            if (!bodyText) return null;
+
+            try {
+                return JSON.parse(bodyText);
+            } catch (e) {
+                return bodyText;
+            }
+        }
+
+        function executeAPI(apiType) {
+            switch(apiType) {
+                case 'remote-fetch':
+                    executeRemoteFetch();
+                    break;
+                case 'remote-fetch-stream':
+                    executeRemoteFetchStream();
+                    break;
+                case 'remote-script':
+                    executeRemoteScript();
+                    break;
+                case 'remote-html':
+                    executeRemoteHtml();
+                    break;
+            }
+        }
+
+        function executeRemoteFetch() {
+            const pageUrl = document.getElementById('fetch-pageUrl').value;
+            const fetchUrl = document.getElementById('fetch-fetchUrl').value;
+            const method = document.getElementById('fetch-method').value;
+            const requestBodyText = document.getElementById('fetch-body').value;
+
+            if (!pageUrl || !fetchUrl) {
+                showAPIResult('remote-fetch', 'Please fill in Page URL and Request URL', 'error');
+                return;
+            }
+
+            let requestBody = null;
+            if (requestBodyText.trim()) {
+                try {
+                    requestBody = JSON.parse(requestBodyText);
+                } catch (e) {
+                    showAPIResult('remote-fetch', '请求体JSON格式错误: ' + e.message, 'error');
+                    return;
+                }
+            }
+
+            const command = {
+                pageUrl: pageUrl,
+                fetchUrl: fetchUrl,
+                method: method,
+                body: requestBody,
+                stream: false
+            };
+
+            showAPIResult('remote-fetch', '正在调用 /api/remote-fetch...', 'loading');
+
+            fetch('/api/remote-fetch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showAPIResult('remote-fetch', 'Remote Fetch 调用成功:\n' + JSON.stringify(data, null, 2), 'success');
+            })
+            .catch(error => {
+                showAPIResult('remote-fetch', 'Remote Fetch 调用失败: ' + error.message, 'error');
+            });
+        }
+
+        function executeRemoteFetchStream() {
+            const pageUrl = document.getElementById('stream-pageUrl').value;
+            const fetchUrl = document.getElementById('stream-fetchUrl').value;
+            const method = document.getElementById('stream-method').value;
+            const requestBodyText = document.getElementById('stream-body').value;
+
+            if (!pageUrl || !fetchUrl) {
+                showAPIResult('remote-fetch-stream', 'Please fill in Page URL and Request URL', 'error');
+                return;
+            }
+
+            let requestBody = null;
+            if (requestBodyText.trim()) {
+                try {
+                    requestBody = JSON.parse(requestBodyText);
+                } catch (e) {
+                    showAPIResult('remote-fetch-stream', '请求体JSON格式错误: ' + e.message, 'error');
+                    return;
+                }
+            }
+
+            const command = {
+                pageUrl: pageUrl,
+                fetchUrl: fetchUrl,
+                method: method,
+                body: requestBody,
+                stream: true
+            };
+
+            showAPIResult('remote-fetch-stream', '正在调用 /api/remote-fetch-stream...', 'loading');
+
+            fetch('/api/remote-fetch-stream', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            })
+            .then(response => {
+                const reader = response.body.getReader();
+                let result = '';
+
+                function readStream() {
+                    return reader.read().then(({ done, value }) => {
+                        if (done) {
+                            showAPIResult('remote-fetch-stream', 'Remote Fetch Stream 完成:\n' + result, 'success');
+                            return;
+                        }
+
+                        const chunk = new TextDecoder().decode(value);
+                        result += chunk;
+                        showAPIResult('remote-fetch-stream', 'Remote Fetch Stream 接收中...\n' + result, 'loading');
+
+                        return readStream();
+                    });
+                }
+
+                return readStream();
+            })
+            .catch(error => {
+                showAPIResult('remote-fetch-stream', 'Remote Fetch Stream 调用失败: ' + error.message, 'error');
+            });
+        }
+
+        function executeRemoteScript() {
+            const pageUrl = document.getElementById('script-pageUrl').value;
+            const script = document.getElementById('script-code').value;
+
+            if (!pageUrl || !script) {
+                showAPIResult('remote-script', '请填写页面URL和JavaScript代码', 'error');
+                return;
+            }
+
+            const command = {
+                pageUrl: pageUrl,
+                script: script,
+                type: "EXECUTE_SCRIPT_TASK"
+            };
+
+            showAPIResult('remote-script', '正在调用 /api/remote-script...', 'loading');
+
+            fetch('/api/remote-script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showAPIResult('remote-script', 'Remote Script 调用成功:\n' + JSON.stringify(data, null, 2), 'success');
+            })
+            .catch(error => {
+                showAPIResult('remote-script', 'Remote Script 调用失败: ' + error.message, 'error');
+            });
+        }
+
+        function executeRemoteHtml() {
+            const pageUrl = document.getElementById('html-pageUrl').value;
+            const htmlContent = document.getElementById('html-content').value;
+
+            if (!pageUrl || !htmlContent) {
+                showAPIResult('remote-html', '请填写页面URL和HTML内容', 'error');
+                return;
+            }
+
+            const command = {
+                pageUrl: pageUrl,
+                script: htmlContent,
+                type: "LOAD_HTML"
+            };
+
+            showAPIResult('remote-html', '正在调用 /api/remote-html...', 'loading');
+
+            fetch('/api/remote-html', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showAPIResult('remote-html', 'Remote HTML 调用成功:\n' + JSON.stringify(data, null, 2), 'success');
+            })
+            .catch(error => {
+                showAPIResult('remote-html', 'Remote HTML 调用失败: ' + error.message, 'error');
+            });
+        }
+
+        function showAPIResult(apiType, message, type) {
+            const resultsDiv = document.getElementById(apiType + '-result');
+            let color = '#333';
+            let icon = '';
+
+            switch(type) {
+                case 'success':
+                    color = '#48bb78';
+                    icon = '✅ ';
+                    break;
+                case 'error':
+                    color = '#f56565';
+                    icon = '❌ ';
+                    break;
+                case 'loading':
+                    color = '#4299e1';
+                    icon = '⏳ ';
+                    break;
+            }
+
+            if (resultsDiv) {
+                resultsDiv.innerHTML = `<div style="color: ${color}; white-space: pre-wrap;">${icon}${message}</div>`;
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            }
+        }
+
+        // API调用函数
+        function callRemoteFetch() {
+            const pageUrl = document.getElementById('pageUrl').value;
+            const fetchUrl = document.getElementById('fetchUrl').value;
+            const method = document.getElementById('method').value;
+            const requestBodyText = document.getElementById('requestBody').value;
+
+            if (!pageUrl || !fetchUrl) {
+                showResult('Please fill in Page URL and Request URL', 'error');
+                return;
+            }
+
+            let requestBody = null;
+            if (requestBodyText.trim()) {
+                try {
+                    requestBody = JSON.parse(requestBodyText);
+                } catch (e) {
+                    showResult('请求体JSON格式错误: ' + e.message, 'error');
+                    return;
+                }
+            }
+
+            const command = {
+                pageUrl: pageUrl,
+                fetchUrl: fetchUrl,
+                method: method,
+                body: requestBody,
+                stream: false
+            };
+
+            showResult('正在调用 /api/remote-fetch...', 'loading');
+
+            fetch('/api/remote-fetch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showResult('Remote Fetch 调用成功:\n' + JSON.stringify(data, null, 2), 'success');
+            })
+            .catch(error => {
+                showResult('Remote Fetch 调用失败: ' + error.message, 'error');
+            });
+        }
+
+        function callRemoteFetchStream() {
+            const pageUrl = document.getElementById('pageUrl').value;
+            const fetchUrl = document.getElementById('fetchUrl').value;
+            const method = document.getElementById('method').value;
+            const requestBodyText = document.getElementById('requestBody').value;
+
+            if (!pageUrl || !fetchUrl) {
+                showResult('Please fill in Page URL and Request URL', 'error');
+                return;
+            }
+
+            let requestBody = null;
+            if (requestBodyText.trim()) {
+                try {
+                    requestBody = JSON.parse(requestBodyText);
+                } catch (e) {
+                    showResult('请求体JSON格式错误: ' + e.message, 'error');
+                    return;
+                }
+            }
+
+            const command = {
+                pageUrl: pageUrl,
+                fetchUrl: fetchUrl,
+                method: method,
+                body: requestBody,
+                stream: true
+            };
+
+            showResult('正在调用 /api/remote-fetch-stream...', 'loading');
+
+            fetch('/api/remote-fetch-stream', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            })
+            .then(response => {
+                const reader = response.body.getReader();
+                let result = '';
+
+                function readStream() {
+                    return reader.read().then(({ done, value }) => {
+                        if (done) {
+                            showResult('Remote Fetch Stream 完成:\n' + result, 'success');
+                            return;
+                        }
+
+                        const chunk = new TextDecoder().decode(value);
+                        result += chunk;
+                        showResult('Remote Fetch Stream 接收中...\n' + result, 'loading');
+
+                        return readStream();
+                    });
+                }
+
+                return readStream();
+            })
+            .catch(error => {
+                showResult('Remote Fetch Stream 调用失败: ' + error.message, 'error');
+            });
+        }
+
+        function callRemoteScript() {
+            const pageUrl = document.getElementById('scriptPageUrl').value;
+            const script = document.getElementById('scriptCode').value;
+
+            if (!pageUrl || !script) {
+                showResult('请填写页面URL和JavaScript代码', 'error');
+                return;
+            }
+
+            const command = {
+                pageUrl: pageUrl,
+                script: script,
+                type: "EXECUTE_SCRIPT_TASK"
+            };
+
+            showResult('正在调用 /api/remote-script...', 'loading');
+
+            fetch('/api/remote-script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showResult('Remote Script 调用成功:\n' + JSON.stringify(data, null, 2), 'success');
+            })
+            .catch(error => {
+                showResult('Remote Script 调用失败: ' + error.message, 'error');
+            });
+        }
+
+        function callRemoteHtml() {
+            const pageUrl = document.getElementById('htmlPageUrl').value;
+            const htmlContent = document.getElementById('htmlContent').value;
+
+            if (!pageUrl || !htmlContent) {
+                showResult('请填写页面URL和HTML内容', 'error');
+                return;
+            }
+
+            const command = {
+                pageUrl: pageUrl,
+                script: htmlContent,
+                type: "LOAD_HTML"
+            };
+
+            showResult('正在调用 /api/remote-html...', 'loading');
+
+            fetch('/api/remote-html', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(command)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showResult('Remote HTML 调用成功:\n' + JSON.stringify(data, null, 2), 'success');
+            })
+            .catch(error => {
+                showResult('Remote HTML 调用失败: ' + error.message, 'error');
+            });
+        }
+
+        function showResult(message, type) {
+            const resultsDiv = document.getElementById('requestResults');
+            let color = '#333';
+            let icon = '';
+
+            switch(type) {
+                case 'success':
+                    color = '#48bb78';
+                    icon = '✅ ';
+                    break;
+                case 'error':
+                    color = '#f56565';
+                    icon = '❌ ';
+                    break;
+                case 'loading':
+                    color = '#4299e1';
+                    icon = '⏳ ';
+                    break;
+            }
+
+            resultsDiv.innerHTML = `<div style="color: ${color};">${icon}${message}</div>`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        // Initialize dashboard
+        window.onload = function() {
+            refreshServerStatus();
+            refreshConnections();
+            refreshModels();
+            startAutoRefresh();
+        };
+    </script>
+</body>
+</html>
