@@ -1,7 +1,10 @@
 package com.guoshengkai.cloudflarefaker.websocket.center;
 
 import com.guoshengkai.cloudflarefaker.websocket.ClientInfo;
+import com.guoshengkai.cloudflarefaker.websocket.WebSocketMessageSender;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.WebSocketSession;
 
 import java.util.ArrayList;
@@ -10,8 +13,9 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Function;
 
-@Slf4j
 public class RegisteredSessionManager {
+
+    protected static Logger log = LoggerFactory.getLogger(WebSocketMessageSender.class);
 
     private static Map<String, ClientInfo> registeredSessions = new ConcurrentHashMap<>();
 

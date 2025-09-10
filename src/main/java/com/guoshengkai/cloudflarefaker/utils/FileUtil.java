@@ -107,38 +107,42 @@ public class FileUtil {
      *      项目资源路径
      * @return
      */
-    @SneakyThrows
     public static List<String> getProjectResources(String path){
         List<String> result = new LinkedList<>();
-        Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(path);
-        while (resources.hasMoreElements()){
-            URL url = resources.nextElement();
-            String protocol = url.getProtocol();//大概是jar
-            if ("jar".equalsIgnoreCase(protocol)) {
-                //转换为JarURLConnection
-                JarURLConnection connection = (JarURLConnection) url.openConnection();
-                if (connection != null) {
-                    JarFile jarFile = connection.getJarFile();
-                    if (jarFile != null) {
-                        //得到该jar文件下面的类实体
-                        Enumeration<JarEntry> jarEntryEnumeration = jarFile.entries();
-                        while (jarEntryEnumeration.hasMoreElements()) {
-                            JarEntry entry = jarEntryEnumeration.nextElement();
-                            String jarEntryName = entry.getName();
-                            //这里我们需要过滤不是class文件和不在basePack包名下的类
-                            if (jarEntryName.startsWith(path) &&
-                                    !jarEntryName.startsWith(path + "/.idea") &&
-                                    !jarEntryName.endsWith("/")){
-                                result.add(jarEntryName);
+        Enumeration<URL> resources = null;
+        try {
+            resources = Thread.currentThread().getContextClassLoader().getResources(path);
+            while (resources.hasMoreElements()){
+                URL url = resources.nextElement();
+                String protocol = url.getProtocol();//大概是jar
+                if ("jar".equalsIgnoreCase(protocol)) {
+                    //转换为JarURLConnection
+                    JarURLConnection connection = (JarURLConnection) url.openConnection();
+                    if (connection != null) {
+                        JarFile jarFile = connection.getJarFile();
+                        if (jarFile != null) {
+                            //得到该jar文件下面的类实体
+                            Enumeration<JarEntry> jarEntryEnumeration = jarFile.entries();
+                            while (jarEntryEnumeration.hasMoreElements()) {
+                                JarEntry entry = jarEntryEnumeration.nextElement();
+                                String jarEntryName = entry.getName();
+                                //这里我们需要过滤不是class文件和不在basePack包名下的类
+                                if (jarEntryName.startsWith(path) &&
+                                        !jarEntryName.startsWith(path + "/.idea") &&
+                                        !jarEntryName.endsWith("/")){
+                                    result.add(jarEntryName);
+                                }
                             }
                         }
                     }
+                }else if("file".equalsIgnoreCase(protocol)){
+                    //从maven子项目中扫描
+                    File file = new File(url.getFile());
+                    result = getFolderResources(file, path);
                 }
-            }else if("file".equalsIgnoreCase(protocol)){
-                //从maven子项目中扫描
-                File file = new File(url.getFile());
-                result = getFolderResources(file, path);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return result;
     }
@@ -322,9 +326,12 @@ public class FileUtil {
         }
     }
 
-    @SneakyThrows
     public static void unzip(File source, File target){
-        unzip(new FileInputStream(source), target);
+        try {
+            unzip(new FileInputStream(source), target);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void zip(File source, ZipOutputStream out, String name) throws IOException{

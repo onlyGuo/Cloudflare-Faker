@@ -94,8 +94,6 @@ public class ResponseManager {
         removeResponse(taskId);
     }
 
-    @Getter
-    @Setter
     public static class TaskResponse {
         private WebSocketSession session;
         private Object response;
@@ -107,6 +105,62 @@ public class ResponseManager {
         private long startTimeout;
         private boolean completed;
         private List<Object> responseStream = new java.util.LinkedList<>();
+
+        public WebSocketSession getSession() {
+            return session;
+        }
+
+        public void setSession(WebSocketSession session) {
+            this.session = session;
+        }
+
+        public Object getResponse() {
+            return response;
+        }
+
+        public void setResponse(Object response) {
+            this.response = response;
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
+
+        public long getTimeout() {
+            return timeout;
+        }
+
+        public void setTimeout(long timeout) {
+            this.timeout = timeout;
+        }
+
+        public long getStartTimeout() {
+            return startTimeout;
+        }
+
+        public void setStartTimeout(long startTimeout) {
+            this.startTimeout = startTimeout;
+        }
+
+        public boolean isCompleted() {
+            return completed;
+        }
+
+        public void setCompleted(boolean completed) {
+            this.completed = completed;
+        }
+
+        public List<Object> getResponseStream() {
+            return responseStream;
+        }
+
+        public void setResponseStream(List<Object> responseStream) {
+            this.responseStream = responseStream;
+        }
     }
 
     public static void completeResponse(String taskId, Object response) {

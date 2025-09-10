@@ -9,6 +9,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -21,9 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Component
 public class MyWebSocketHandler implements WebSocketHandler {
+
+    protected Logger log = LoggerFactory.getLogger(WebSocketMessageSender.class);
 
     @Resource
     private ApplicationContext applicationContext;

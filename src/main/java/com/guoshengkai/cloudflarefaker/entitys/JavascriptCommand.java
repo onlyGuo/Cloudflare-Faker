@@ -9,8 +9,6 @@ import lombok.Setter;
  *
  * @author gsk
  */
-@Getter
-@Setter
 public class JavascriptCommand {
     /**
      * 在哪个页面上执行脚本
@@ -26,4 +24,28 @@ public class JavascriptCommand {
      * 任务类型，默认为 "EXECUTE_SCRIPT_TASK"
      */
     private String type = "EXECUTE_SCRIPT_TASK";
+
+    public String getPageUrl() {
+        return pageUrl;
+    }
+
+    public void setPageUrl(String pageUrl) {
+        this.pageUrl = pageUrl;
+    }
+
+    public String getScript() {
+        return script;
+    }
+
+    public void setScript(String script) {
+        this.script = script;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

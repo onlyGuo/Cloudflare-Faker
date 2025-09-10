@@ -12,8 +12,6 @@ import java.util.function.Function;
  * 用于存储和管理客户端的连接信息
  * @author gsk
  */
-@Getter
-@Setter
 public class ClientInfo {
 
     private String clientId;
@@ -69,5 +67,69 @@ public class ClientInfo {
      */
     public void receiveResponseStream(String taskId, int timeout, Consumer<String> callback) {
         ResponseManager.getTaskResponseStream(taskId, timeout, timeout, callback);
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public int getMessageCount() {
+        return messageCount;
+    }
+
+    public void setMessageCount(int messageCount) {
+        this.messageCount = messageCount;
+    }
+
+    public long getConnectedAt() {
+        return connectedAt;
+    }
+
+    public void setConnectedAt(long connectedAt) {
+        this.connectedAt = connectedAt;
+    }
+
+    public long getLastPing() {
+        return lastPing;
+    }
+
+    public void setLastPing(long lastPing) {
+        this.lastPing = lastPing;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public WebSocketSession getSession() {
+        return session;
+    }
+
+    public void setSession(WebSocketSession session) {
+        this.session = session;
     }
 }

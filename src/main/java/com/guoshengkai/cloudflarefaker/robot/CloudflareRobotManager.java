@@ -3,16 +3,20 @@ package com.guoshengkai.cloudflarefaker.robot;
 import com.guoshengkai.cloudflarefaker.robot.screen.Position;
 import com.guoshengkai.cloudflarefaker.robot.screen.ScreenInfo;
 import com.guoshengkai.cloudflarefaker.utils.FileUtil;
+import com.guoshengkai.cloudflarefaker.websocket.WebSocketMessageSender;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Slf4j
 @Component
 public class CloudflareRobotManager {
+
+    protected Logger log = LoggerFactory.getLogger(WebSocketMessageSender.class);
 
     boolean stop = false;
 

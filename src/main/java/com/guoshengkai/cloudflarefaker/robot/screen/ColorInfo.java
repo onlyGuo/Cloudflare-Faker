@@ -11,8 +11,6 @@ import java.util.List;
  * @author gsk
  */
 public class ColorInfo {
-    @Setter
-    @Getter
     private Color averageColor;
     private final java.util.Map<Integer, Integer> colorCount = new java.util.HashMap<>();
 
@@ -27,5 +25,13 @@ public class ColorInfo {
                 .limit(count)
                 .map(e -> new Color(e.getKey()))
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    public Color getAverageColor() {
+        return averageColor;
+    }
+
+    public void setAverageColor(Color averageColor) {
+        this.averageColor = averageColor;
     }
 }

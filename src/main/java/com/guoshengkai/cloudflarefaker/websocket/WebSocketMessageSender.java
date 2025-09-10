@@ -3,14 +3,17 @@ package com.guoshengkai.cloudflarefaker.websocket;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Sinks;
 
-@Slf4j
 public class WebSocketMessageSender {
     private final WebSocketSession session;
     private final Sinks.Many<WebSocketMessage> sink;
+
+    protected Logger log = LoggerFactory.getLogger(WebSocketMessageSender.class);
 
     public WebSocketMessageSender(WebSocketSession session) {
         this.session = session;

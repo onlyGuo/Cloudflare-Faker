@@ -11,8 +11,6 @@ import java.awt.image.BufferedImage;
  * 用于存储和管理显示器的各种属性和信息
  * @author gsk
  */
-@Getter
-@Setter
 public class ScreenInfo {
     /**
      * 显示器序号
@@ -96,4 +94,91 @@ public class ScreenInfo {
         return ImageFinder.findImgGray(this.screenshot, subImg, similarity);
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Rectangle getBounds() {
+        return bounds;
+    }
+
+    public void setBounds(Rectangle bounds) {
+        this.bounds = bounds;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getRefreshRate() {
+        return refreshRate;
+    }
+
+    public void setRefreshRate(int refreshRate) {
+        this.refreshRate = refreshRate;
+    }
+
+    public int getBitDepth() {
+        return bitDepth;
+    }
+
+    public void setBitDepth(int bitDepth) {
+        this.bitDepth = bitDepth;
+    }
+
+    public BufferedImage getScreenshot() {
+        return screenshot;
+    }
+
+    public void setScreenshot(BufferedImage screenshot) {
+        this.screenshot = screenshot;
+    }
+
+    public boolean isPrimary() {
+        return isPrimary;
+    }
+
+    public void setPrimary(boolean primary) {
+        isPrimary = primary;
+    }
+
+    public double getScaleFactor() {
+        return scaleFactor;
+    }
+
+    public void setScaleFactor(double scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
 }

@@ -1,16 +1,11 @@
 package com.guoshengkai.cloudflarefaker.entitys;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * FetchCommand represents a command to fetch a resource from a specified URL.
  * It includes details such as the page URL, fetch URL, HTTP method, request body, and whether to stream the response.
  *
  * @author gsk
  */
-@Getter
-@Setter
 public class FetchCommand {
 
     /**
@@ -38,4 +33,43 @@ public class FetchCommand {
      */
     private boolean stream;
 
+    public String getPageUrl() {
+        return pageUrl;
+    }
+
+    public void setPageUrl(String pageUrl) {
+        this.pageUrl = pageUrl;
+    }
+
+    public String getFetchUrl() {
+        return fetchUrl;
+    }
+
+    public void setFetchUrl(String fetchUrl) {
+        this.fetchUrl = fetchUrl;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public Object getBody() {
+        return body;
+    }
+
+    public void setBody(Object body) {
+        this.body = body;
+    }
+
+    public boolean isStream() {
+        return stream;
+    }
+
+    public void setStream(boolean stream) {
+        this.stream = stream;
+    }
 }
