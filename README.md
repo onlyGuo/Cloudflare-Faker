@@ -1,13 +1,4 @@
-
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
-<!--
-*** Thanks for checking out the Cloudflare-faker. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
 
 <!-- PROJECT SHIELDS -->
 [![Contributors][contributors-shield]][contributors-url]
@@ -15,7 +6,6 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -52,27 +42,53 @@
 <!-- ABOUT THE PROJECT -->
 ## 关于项目
 
-[![Demo截图][product-screenshot]](https://example.com)
-
 这是一个自动绕过 Cloudflare 人机验证的服务工具。需要在具有GUI的机器（如MacOS、Windows、GUI Linux）上运行，确保已安装Chrome浏览器和JDK 24环境。启动后，需在Chrome开启开发者模式并导入插件目录`cloudflare_monitor_chrome_plugin`。
+[![控制台截图][product-screenshot]](doc/images/console.png)
+
+当你正常安装Chrome插件后，插件会自动连接到本地运行的服务，帮助你自动完成本地服务下发的任务.当浏览器中插件状态变为绿色, 显示`Connected`时, 表示插件已成功连接到本地服务, 可以开始处理Cloudflare验证任务.
+![插件截图](doc/images/plugin.png)
 
 **主要功能：**
 - 自动管理Cloudflare验证流程
 - 提供简单易用的界面和操作流程
-- 支持多平台，便于开发者使用
+- 提供API接口, 允许远程管理Cloudflare网站.
+- 通过API远程执行带有Cloudflare质询网站的Fetch请求(包括正常请求/流式请求).
+- 通过API远程执行带有Cloudflare质询网站的JavaScript.
+
+**工作原理：**
+本项目分为两部分, 分别是服务端(Java任务下发服务), 和Agent端(Chrome插件,用于执行任务).
+
+```mermaid
+flowchart TD
+    A[客户端发起API请求]
+    B[请求内容：网站地址, AjaxURL, 请求方法, 请求体]
+    A -->|传递请求| B
+
+    B -->|发送请求到服务器| C[服务器接收请求]
+    C -->|向Chrome下发任务| D[Chrome浏览器执行任务]
+    D -->|新标签打开网站| E[浏览器打开指定网站]
+    E -->|自动完成Cloudflare验证| F[Cloudflare挑战完成]
+    F -->|携带Cookie访问Fetch| G[在标签中用提交参数访问Fetch]
+    G -->|Fetch请求返回结果| H[浏览器将结果返回给服务器]
+    H -->|服务器收到结果| I[响应客户端请求]
+    I -->|返回结果| A
+```
+> **注意：** 该项目仅供学习和研究使用，请勿用于任何非法用途。使用本项目需遵守相关法律法规和网站的服务条款。
+> 
+> 本项目`执行JavaScript`功能尚不完善, 出于安全策略考量,大部分浏览器不支持. 后续有时间换一种实现思路.
 
 ## 准备工作
 
 在运行此项目之前，请确保：
-- 拥有一台具有GUI的电脑（MacOS、Windows、GUI Linux等）
-- 已安装Chrome浏览器
-- 已安装JDK 24环境
-- 在Chrome浏览器中开启开发者模式
-- 导入`cloudflare_monitor_chrome_plugin`插件目录
+- 拥有一台具有GUI的电脑（MacOS、Windows、GUI Linux等）, 这里叫他Agent机器.
+- Agent机器已安装Chrome浏览器
+- Agent机器已安装JDK 24环境
+- Agent机器在Chrome浏览器中开启开发者模式
+- Agent机器导入`cloudflare_monitor_chrome_plugin`插件目录
 
 ## 快速启动
 
-1. 在终端（命令行）中执行：
+1. 在Agent机器的终端（命令行）中执行：
 ```bash
 java -jar Cloudflare-Faker-0.0.1-SNAPSHOT.jar
 ```
@@ -92,24 +108,26 @@ java -jar Cloudflare-Faker-0.0.1-SNAPSHOT.jar
  🌐 Access the application at:
     http://localhost:8080
 ```
+> 若启动完成后, 没有自动打开浏览器, 请手动打开浏览器,并确保浏览器窗口在最前端显示.
 
 3. 启动成功后，为了插件正常运行：
-   - 建议在另一台电脑访问控制台（端口8080）
-   - 保持Chrome浏览器开启，并确保Chrome窗口在最前端显示
-   - 不要关闭Chrome，否则可能影响验证流程
+   - 建议在另一台电脑访问控制台（端口8080）, 尽量保证Agent机器无人干涉, 以免影响验证流程
+   - 不要关闭Agent机器的Chrome，否则可能影响验证流程
 
 ## 使用建议
 
 - 在另一台电脑上访问控制台（端口8080）以实现更好的验证效果
 - 使用Chrome的开发者模式加载插件目录
-- 持续保持Chrome窗口开启且在最前端
+- 持续保持Agent机器的Chrome窗口开启且在最前端
 
 ## 注意事项
 
 - 仅在符合条件的GUI机器上运行
 - 确认已正确导入插件目录
-- 不要关闭Chrome浏览器，以确保验证流程顺利
-
+- 不要关闭Agent机器Chrome浏览器，以确保验证流程顺利
+- 服务端(Java服务)和Agent端(Chrome插件)可以分别部署在不同的机器上, 但需要确保两端网络互通. 
+- 若部署在不同机器上, 需要修改`chrome插件`的ws地址, 将`ws://localhost:8080`改为`ws://服务端IP:8080`, 以确保插件能连接到服务端.
+- 可以同时部署多个Agent机器, 以提高处理能力. 但需要确保每个Agent机器的Chrome插件都正确连接到服务端.
 ## 贡献指南
 
 欢迎提交Pull Request或Issue，帮助完善此项目！  
@@ -123,4 +141,19 @@ java -jar Cloudflare-Faker-0.0.1-SNAPSHOT.jar
 
 开发者：你的名字  
 邮箱：your_email@example.com  
-GitHub： [https://github.com/your_username](
+GitHub： [https://github.com/onlyGuo](
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/onlyGuo/Cloudflare-Faker.svg?style=for-the-badge
+[contributors-url]: https://github.com/onlyGuo/Cloudflare-Faker/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/onlyGuo/Cloudflare-Faker.svg?style=for-the-badge
+[forks-url]: https://github.com/onlyGuo/Cloudflare-Faker/network/members
+[stars-shield]: https://img.shields.io/github/stars/onlyGuo/Cloudflare-Faker.svg?style=for-the-badge
+[stars-url]: https://github.com/onlyGuo/Cloudflare-Faker/stargazers
+[issues-shield]: https://img.shields.io/github/issues/onlyGuo/Cloudflare-Faker.svg?style=for-the-badge
+[issues-url]: https://github.com/onlyGuo/Cloudflare-Faker/issues
+[license-shield]: https://img.shields.io/github/license/onlyGuo/Cloudflare-Faker.svg?style=for-the-badge
+[license-url]: https://github.com/onlyGuo/Cloudflare-Faker/blob/master/LICENSE.txt
+[product-screenshot]: doc/images/console.png
