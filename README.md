@@ -11,7 +11,7 @@
 <br />
 <div align="center">
   <a href="#">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="doc/images/logo.svg" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Cloudflare-faker</h3>
@@ -42,7 +42,7 @@
 <!-- ABOUT THE PROJECT -->
 ## 关于项目
 
-这是一个自动绕过 Cloudflare 人机验证的服务工具。需要在具有GUI的机器（如MacOS、Windows、GUI Linux）上运行，确保已安装Chrome浏览器和JDK 24环境。启动后，需在Chrome开启开发者模式并导入插件目录`cloudflare_monitor_chrome_plugin`。
+这是一个无视 Cloudflare 人机验证(主动质询挑战)进行HTTP访问的服务工具。需要在具有GUI的机器（如MacOS、Windows、GUI Linux）上部署，确保已安装Chrome浏览器和JDK 24环境。启动后，需在Chrome开启开发者模式并导入插件目录`cloudflare_monitor_chrome_plugin`。
 [![控制台截图][product-screenshot]](doc/images/console.png)
 
 当你正常安装Chrome插件后，插件会自动连接到本地运行的服务，帮助你自动完成本地服务下发的任务.当浏览器中插件状态变为绿色, 显示`Connected`时, 表示插件已成功连接到本地服务, 可以开始处理Cloudflare验证任务.
@@ -139,9 +139,8 @@ java -jar Cloudflare-Faker-0.0.1-SNAPSHOT.jar
 
 ## 联系方式
 
-开发者：你的名字  
-邮箱：your_email@example.com  
-GitHub： [https://github.com/onlyGuo](
+邮箱：719348277@qq.com  
+GitHub： [https://github.com/onlyGuo](https://github.com/onlyGuo)
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
