@@ -59,19 +59,18 @@
 本项目分为两部分, 分别是服务端(Java任务下发服务), 和Agent端(Chrome插件,用于执行任务).
 
 ```mermaid
-flowchart TD
-    A[客户端发起API请求]
-    B[请求内容：网站地址, AjaxURL, 请求方法, 请求体]
-    A -->|传递请求| B
+sequenceDiagram
+    participant 客户端
+    participant 服务器
+    participant Chrome浏览器
 
-    B -->|发送请求到服务器| C[服务器接收请求]
-    C -->|向Chrome下发任务| D[Chrome浏览器执行任务]
-    D -->|新标签打开网站| E[浏览器打开指定网站]
-    E -->|自动完成Cloudflare验证| F[Cloudflare挑战完成]
-    F -->|携带Cookie访问Fetch| G[在标签中用提交参数访问Fetch]
-    G -->|Fetch请求返回结果| H[浏览器将结果返回给服务器]
-    H -->|服务器收到结果| I[响应客户端请求]
-    I -->|返回结果| A
+    客户端->>服务器: 通过API请求传递网站地址、AjaxURL、请求方法、请求体
+    服务器->>Chrome浏览器: 下发任务（打开新标签、访问网站）
+    Chrome浏览器->>Chrome浏览器: 新标签打开指定网站
+    Chrome浏览器->>Chrome浏览器: 自动完成Cloudflare验证
+    Chrome浏览器->>Chrome浏览器: 使用Cookie发起Fetch请求
+    Chrome浏览器-->>服务器: 返回Fetch请求结果
+    服务器-->>客户端: 返回最终结果
 ```
 > **注意：** 该项目仅供学习和研究使用，请勿用于任何非法用途。使用本项目需遵守相关法律法规和网站的服务条款。
 > 
