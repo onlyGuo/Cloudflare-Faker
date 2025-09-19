@@ -137,7 +137,7 @@ java -jar Cloudflare-Faker-0.0.1-SNAPSHOT.jar
 
 ## 许可证
 
-本项目采用MIT许可证，详细信息请查看 LICENSE 文件。
+本项目采用GPL-3许可证，详细信息请查看 LICENSE 文件。
 
 ## 联系方式
 
