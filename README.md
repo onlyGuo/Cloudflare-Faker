@@ -90,8 +90,9 @@ sequenceDiagram
 
 ## 快速启动
 
-1. 在Agent机器的终端（命令行）中执行：
+1. 编译并在Agent机器的终端（命令行）中执行：
 ```bash
+mvn package && cd target
 java -jar Cloudflare-Faker-0.0.1-SNAPSHOT.jar
 ```
 2. 等待输出如下信息，表示启动成功：
